@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陳泓綸的數位名片</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
+
+        :root {
+            --primary-brown: #5B4B00;
+            --accent-gold: #A67C32;
+            --card-bg: rgba(255, 255, 255, 0.65);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: var(--primary-brown);
+            transition: background-color 0.6s ease;
+            cursor: pointer;
+            color: #37352f;
+            overflow: hidden; /* 防止滾動條觸發佈局抖動 */
+        }
+
+        /* 背景畫布 - 確保固定且不參與 Flex 排版 */
+        .bg-pawprints-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 名片容器 */
+        .card-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            width: 85%;
+            max-width: 360px;
+            padding: 40px 30px;
+            cursor: default;
+            background-color: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            background-color: #f9f7f4;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 16px 0 rgba(166, 124, 50, 0.09), 0 0 0 6px #FFF8E1;
+            border: 2.5px solid var(--accent-gold);
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        h1 { font-size: 26px; font-weight: 700; margin: 0 0 8px; }
+        .subtitle { font-size: 15px; color: #6b5b2a; margin: 0 0 32px; }
+
+        .social-links { display: flex; flex-direction: column; gap: 12px; }
+        .social-btn {
+            display: block;
+            text-decoration: none;
+            color: #fff8e1;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            background-color: var(--accent-gold);
+            border: 1px solid var(--accent-gold);
+        }
+
+        .social-btn.instagram { background-color: #E1306C; border-color: #E1306C; }
+        .social-btn.youtube { background-color: #FF0000; border-color: #FF0000; }
+        .social-btn.spotify { background-color: #1DB954; border-color: #1DB954; }
+
+        .social-btn:hover {
+            background-color: #fff;
+            color: inherit;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* 自適應大小的動漫小人區塊 */
+        .giphy-dancer-wrapper {
+            position: fixed;
+            right: 2vw;
+            bottom: 2vh;
+            z-index: 50;
+            /* 使用 clamp 讓大小在 80px 到 150px 之間隨視窗縮放 */
+            width: clamp(80px, 15vw, 150px);
+            height: clamp(80px, 15vw, 150px);
+            pointer-events: none;
+        }
+        
+        .giphy-dancer-iframe {
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.15);
+            background: #fff;
+            border: none;
+        }
+
+        .dancer-click-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 60;
+            cursor: pointer;
+            pointer-events: auto;
+            border-radius: 16px;
+        }
+
+        /* 噴發音符 - 必須為 fixed 避免撐開 body */
+        .music-note {
+            position: fixed;
+            z-index: 100;
+            font-size: 2.5rem;
+            user-select: none;
+            pointer-events: none;
+            will-change: transform, opacity;
+            animation: note-explosion 1.2s cubic-bezier(0.12, 0, 0.39, 0) forwards;
+        }
+
+        @keyframes note-explosion {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.5) rotate(var(--tr)); opacity: 0; }
+        }
+
+        .floating-gif {
+            position: fixed;
+            z-index: 99;
+            pointer-events: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            animation: gif-float 2s linear forwards;
+        }
+
+        @keyframes gif-float {
+            0% { transform: translate(var(--sx), var(--sy)) scale(1); opacity: 1; }
+            100% { transform: translate(var(--ex), var(--ey)) scale(1.2); opacity: 0; }
+        }
+
+        @media (max-width: 480px) {
+            .card-container { padding: 30px 20px; }
+            h1 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas class="bg-pawprints-canvas" id="pawCanvas"></canvas>
+
+    <div class="card-container">
+        <div class="avatar">
+            <img src="https://i.ibb.co/NntM6V1z/Gemini-Generated-Image-57b9m357b9m357b9-1.png" alt="陳泓綸大頭照">
+        </div>
+        
+        <h1>陳泓綸</h1>
+        <p class="subtitle">在二樓迷失的師大學生</p>
+
+        <div class="social-links">
+            <a href="#" class="social-btn instagram" target="_blank">Instagram</a>
+            <a href="#" class="social-btn youtube" target="_blank">YouTube</a>
+            <a href="#" class="social-btn spotify" target="_blank">Spotify</a>
+        </div>
+    </div>
+
+    <div class="giphy-dancer-wrapper">
+        <div class="dancer-click-overlay" id="dancer-overlay"></div>
+        <iframe
+            src="https://giphy.com/embed/ixlvheavdDS8L7GFCt"
+            class="giphy-dancer-iframe"
+            frameBorder="0"
+        ></iframe>
+    </div>
+
+    <script>
+        const dancerOverlay = document.getElementById('dancer-overlay');
+        const dancerGifUrl = "https://media.giphy.com/media/ixlvheavdDS8L7GFCt/giphy.gif";
+        const notes = ['♪', '♫', '♬', '♩', '♭', '♮', '♯'];
+        const noteColors = ['#FF82AA', '#FFD700', '#1DB954', '#FF4500', '#ADFF2F', '#00BFFF'];
+        const pastelColors = ['#A0522D','#8B5C2D','#D2B48C','#C19A6B','#EDC9AF','#F5DEB3','#BC987E','#DEB887'];
+
+        // --- 內建音效 ---
+        let audioCtx = null;
+        function playMusicalNote() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const frequencies = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
+            osc.frequency.setValueAtTime(frequencies[Math.floor(Math.random()*6)], audioCtx.currentTime);
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+        }
+
+        // 背景點擊換色
+        document.body.addEventListener('click', (e) => {
+            if (!e.target.closest('.card-container') && !e.target.closest('#dancer-overlay')) {
+                document.body.style.backgroundColor = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+            }
+        });
+
+        // 小人特效
+        dancerOverlay.addEventListener('click', (e) => {
+            e.stopPropagation();
+            playMusicalNote();
+            createMusicNotes(e.clientX, e.clientY);
+            createFloatingGifs(e.clientX, e.clientY);
+        });
+
+        function createMusicNotes(x, y) {
+            for (let i = 0; i < 12; i++) {
+                const note = document.createElement('div');
+                note.className = 'music-note';
+                note.innerText = notes[Math.floor(Math.random() * notes.length)];
+                note.style.left = `${x}px`;
+                note.style.top = `${y}px`;
+                note.style.color = noteColors[Math.floor(Math.random() * noteColors.length)];
+                
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 100 + Math.random() * 150;
+                note.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+                note.style.setProperty('--ty', `${Math.sin(angle) * dist - 50}px`);
+                note.style.setProperty('--tr', `${(Math.random() - 0.5) * 120}deg`);
+
+                document.body.appendChild(note);
+                setTimeout(() => note.remove(), 1200);
+            }
+        }
+
+        function createFloatingGifs(x, y) {
+            for(let i=0; i<6; i++) {
+                setTimeout(() => {
+                    const img = document.createElement("img");
+                    img.className = "floating-gif";
+                    img.src = dancerGifUrl;
+                    img.style.setProperty("--sx", `${x - 30}px`);
+                    img.style.setProperty("--sy", `${y - 30}px`);
+                    img.style.setProperty("--ex", `${Math.random() * window.innerWidth}px`);
+                    img.style.setProperty("--ey", `${Math.random() * window.innerHeight}px`);
+                    document.body.appendChild(img);
+                    setTimeout(() => img.remove(), 2000);
+                }, i * 150);
+            }
+        }
+
+        // --- 貓腳印動畫修復版 ---
+        const canvas = document.getElementById('pawCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+
+        function drawPaw(x, y, size, rot, col) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(rot);
+            ctx.fillStyle = col;
+            ctx.globalAlpha = 0.5;
+            // 腳掌
+            ctx.beginPath();
+            ctx.ellipse(0, 0, size * 0.4, size * 0.3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // 四個腳趾
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                const tx = (i - 1.5) * size * 0.3;
+                const ty = -size * 0.4;
+                ctx.ellipse(tx, ty, size * 0.12, size * 0.15, (i-1.5)*0.2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        let paws = Array.from({length: 15}, () => ({
+            x: Math.random() * window.innerWidth,
+            y: window.innerHeight + Math.random() * 500,
+            s: 25 + Math.random() * 25,
+            r: Math.random() * Math.PI * 2,
+            sp: 0.8 + Math.random() * 1.2,
+            c: pastelColors[Math.floor(Math.random() * pastelColors.length)]
+        }));
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            paws.forEach(p => {
+                drawPaw(p.x, p.y, p.s, p.r, p.c);
+                p.y -= p.sp;
+                if (p.y < -100) {
+                    p.y = window.innerHeight + 100;
+                    p.x = Math.random() * window.innerWidth;
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
