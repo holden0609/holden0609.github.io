@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陳泓綸的數位名片</title>
+    <style>
+        /* 引入無襯線字體，貼近 Notion 的視覺體驗 */
+       <style>
+@import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai+Mono+TC&display=swap');
+</style>;
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #ffffff; /* 初始背景色為純白 */
+            transition: background-color 0.6s ease; /* 顏色切換時的平滑漸變效果 */
+            cursor: pointer; /* 提示背景可以點擊 */
+            color: #37352f; /* Notion 經典的深灰色文字 */
+        }
+
+        .card-container {
+            text-align: center;
+            /* 改用百分比，讓它在手機上更彈性 */
+            width: 85%;
+            max-width: 360px;
+            padding: 40px 30px;
+            cursor: default;
+            z-index: 10;
+            /* 加入微小的陰影與毛玻璃底色，讓名片更有層次感 */
+            background-color: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 當螢幕寬度小於 480px (一般手機尺寸) 時觸發的規則 */
+        @media (max-width: 480px) {
+            .card-container {
+                padding: 30px 20px; /* 手機上的內距縮小 */
+            }
+            h1 {
+                font-size: 22px; /* 標題稍微縮小 */
+            }
+            .avatar {
+                width: 100px; /* 頭像稍微縮小 */
+                height: 100px;
+            }
+            .social-btn {
+                padding: 12px 16px; /* 按鈕變稍微扁一點，更好按 */
+                font-size: 14px;
+            }
+        }
+
+        /* 圓形大頭照佔位符 */
+        .avatar {
+            width: 120px;
+            height: 120px;
+            background-color: #e9e9e7; /* Notion 的淺灰色區塊 */
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #9a9a97;
+            font-size: 14px;
+            overflow: hidden;
+        }
+
+        /* 若要替換真實照片，可以使用 img 標籤並套用此 class */
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 8px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #787774; /* Notion 的次要文字顏色 */
+            margin: 0 0 32px;
+        }
+
+        /* 社群按鈕區塊 */
+        .social-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .social-btn {
+            display: block;
+            text-decoration: none;
+            color: #37352f;
+            border: 1px solid #e9e9e7;
+            padding: 14px 20px;
+            border-radius: 8px; /* 圓角按鈕 */
+            font-size: 15px;
+            transition: all 0.2s ease;
+            background-color: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(4px); /* 微微的毛玻璃效果，讓背景變色時更好看 */
+        }
+
+        .social-btn:hover {
+            background-color: #f1f1ef;
+            transform: translateY(-2px); /* 懸停時微微上浮 */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card-container">
+        <div class="avatar">
+            <span>大頭照</span>
+            </div>
+        
+        <h1>陳泓綸</h1>
+        <p class="subtitle">迷失在二樓的師大學生</p>
+
+        <div class="social-links">
+            <a href="#" class="social-btn" target="_blank">Instagram</a>
+            <a href="#" class="social-btn" target="_blank">YouTube</a>
+            <a href="#" class="social-btn" target="_blank">Spotify</a>
+        </div>
+    </div>
+
+    <script>
+        // 定義粉嫩色系 (Pastel Colors) 陣列
+        const pastelColors = [
+            '#FFB3BA', // 柔和粉
+            '#FFDFBA', // 蜜桃橘
+            '#FFFFBA', // 奶油黃
+            '#BAFFC9', // 薄荷綠
+            '#BAE1FF', // 寶寶藍
+            '#E8B2C1', // 玫瑰粉
+            '#E2F0CB', // 抹茶綠
+            '#F4C2C2'  // 嬰兒粉
+        ];
+
+        // 監聽整個畫面的點擊事件
+        document.body.addEventListener('click', function(event) {
+            // 如果點擊的是按鈕，就不要觸發背景變色
+            if (event.target.tagName !== 'A') {
+                // 隨機抽取一個顏色
+                const randomColor = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+                // 應用顏色到背景
+                document.body.style.backgroundColor = randomColor;
+            }
+        });
+    </script>
+</body>
+</html>
